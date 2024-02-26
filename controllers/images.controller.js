@@ -1,4 +1,4 @@
-const {drive} = require("../configs/googleAuth");
+const {drive} = require("../configs/google-auth");
 
 const getImagesFromSku = async (sku, limit) => {
     const response = await drive.files.list({

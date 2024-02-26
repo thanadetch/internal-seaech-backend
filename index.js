@@ -4,9 +4,10 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 
-const imagesRouter = require('./routes/images');
+const listingsRouter = require('./routes/listings.route');
 const cors = require("cors");
 const {port} = require("./configs/environment");
+const {checkAuth} = require("./middleware/auth");
 
 const app = express();
 
@@ -15,8 +16,9 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());
+app.use(checkAuth)
 
-app.use('/api/images', imagesRouter);
+app.use('/api/listings', listingsRouter);
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
