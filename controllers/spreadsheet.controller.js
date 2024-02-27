@@ -36,7 +36,6 @@ const getAllListings = async () => {
         listedOn: row.get("Listed On"),
         availability: row.get("Availability"),
         psCode: row.get("PS Code"),
-        images: []
     }));
 };
 
