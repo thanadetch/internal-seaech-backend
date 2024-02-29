@@ -1,6 +1,6 @@
 const {GoogleSpreadsheet} = require('google-spreadsheet');
-const {serviceAccountAuth} = require("../configs/google-auth");
-const {spreadsheetId} = require("../configs/environment");
+const {serviceAccountAuth, drive} = require("../configs/google-auth");
+const {spreadsheetId, zoneSpreadsheetId} = require("../configs/environment");
 const getAllListings = async () => {
     const doc = new GoogleSpreadsheet(spreadsheetId, serviceAccountAuth);
     await doc.loadInfo();
@@ -39,6 +39,36 @@ const getAllListings = async () => {
     }));
 };
 
+const getAllZoneListings = async () => {
+    const doc = new GoogleSpreadsheet(zoneSpreadsheetId, serviceAccountAuth);
+    await doc.loadInfo();
+    const sheet = doc.sheetsByTitle['Zone list'];
+    const rows = await sheet.getRows();
+
+    const results = rows.map(row => ({
+        zoneNameEnglish: row.get("Zone name English"),
+    }));
+    return [...new Set(results.reduce((acc, cur) => {
+        const zoneNameList = cur.zoneNameEnglish.split(', ');
+        return [...acc, ...zoneNameList];
+    }, []))].sort((a, b) => a.localeCompare(b));
+};
+
+
+const getImagesFromSku = async (sku, limit) => {
+    const response = await drive.files.list({
+        q: `mimeType='application/vnd.google-apps.folder' and name='${sku}'`
+    });
+    const folderId = response.data.files ? response.data.files[0].id : null;
+    if (!folderId) throw new Error("FolderId not found");
+    return await drive.files.list({
+        q: `'${folderId}' in parents`,
+        pageSize: limit
+    });
+}
+
 module.exports = {
-    getAllListings
+    getAllListings,
+    getImagesFromSku,
+    getAllZoneListings
 }

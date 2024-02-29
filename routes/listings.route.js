@@ -1,10 +1,17 @@
 const express = require('express');
-const {getAllListings} = require("../controllers/spreadsheet.controller");
-const {getImagesFromSku} = require("../controllers/images.controller");
+const {getAllListings, getAllZoneListings} = require("../controllers/listings.controller");
+const {getImagesFromSku} = require("../controllers/listings.controller");
 const router = express.Router()/* GET users listing. */
 
 router.get('/all', async function (req, res, next) {
     const response = await getAllListings()
+    res.send({
+        data: response
+    });
+});
+
+router.get('/zone/all', async function (req, res, next) {
+    const response = await getAllZoneListings()
     res.send({
         data: response
     });
