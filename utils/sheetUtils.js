@@ -29,7 +29,8 @@ const mapperListingObject = (row) => {
         availability: row.get("Availability"),
         psCode: row.get("PS Code"),
         comment: row.get("Comment"),
-        exclusive: row.get("Exclusive")
+        exclusive: row.get("Exclusive"),
+        updateAvailability: row.get("Update Availability")
     }
 }
 
