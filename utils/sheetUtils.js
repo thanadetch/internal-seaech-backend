@@ -35,7 +35,7 @@ const mapperListingObject = (row) => {
 
 const mapperSheetObject = (listingObj) => {
     return {
-        'Area LP': listingObj.areaLP,
+        "Area LP": listingObj.areaLP,
         "Area LV": listingObj.areaLV,
         "SKU": listingObj.sku,
         "Property Type": listingObj.propertyType,
