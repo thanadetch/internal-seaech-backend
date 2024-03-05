@@ -29,6 +29,7 @@ const mapperListingObject = (row) => {
         availability: row.get("Availability"),
         psCode: row.get("PS Code"),
         comment: row.get("Comment"),
+        exclusive: row.get("Exclusive")
     }
 }
 
@@ -62,7 +63,8 @@ const mapperSheetObject = (listingObj) => {
         "Listed On": listingObj.listedOn,
         "Availability": listingObj.availability,
         "PS Code": listingObj.psCode,
-        "Comment":listingObj.comment
+        "Comment": listingObj.comment,
+        "Exclusive": listingObj.exclusive
     }
 }
 
