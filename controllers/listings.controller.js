@@ -1,42 +1,16 @@
 const {GoogleSpreadsheet} = require('google-spreadsheet');
 const {serviceAccountAuth, drive} = require("../configs/google-auth");
 const {spreadsheetId, zoneSpreadsheetId} = require("../configs/environment");
+const _ = require("lodash");
+const {mapperListingObject, mapperSheetObject} = require("../utils/sheetUtils");
+
 const getAllListings = async () => {
     const doc = new GoogleSpreadsheet(spreadsheetId, serviceAccountAuth);
     await doc.loadInfo();
     const sheet = doc.sheetsByIndex[0];
     const rows = await sheet.getRows();
 
-    return rows.map(row => ({
-        areaLP: row.get("Area LP"),
-        areaLV: row.get("Area LV"),
-        sku: row.get("SKU"),
-        propertyType: row.get("Property Type"),
-        postType: row.get("PostType"),
-        postFrom: row.get("PostFrom"),
-        titleTH: row.get("Title TH"),
-        titleEN: row.get("Title EN"),
-        price: row.get("Price") ? +row.get("Price") : row.get("Price"),
-        areaSize: row.get("AreaSize") ? +row.get("AreaSize") : row.get("AreaSize"),
-        floor: row.get("Floor"),
-        bedroom: row.get("Bedroom"),
-        bathroom: row.get("Bathroom"),
-        petAllowed: row.get("pet_allowed"),
-        facingDirection: row.get("Facing direction"),
-        unitNumber: row.get("Unit Number"),
-        buildingYear: row.get("Building year"),
-        lineId: row.get("Line ID"),
-        tel: row.get("Tel."),
-        name: row.get("Name"),
-        whatsapp: row.get("Whatsapp"),
-        facebookMessenger: row.get("Facebook Messenger"),
-        wechat: row.get("Wechat"),
-        externalDataSource: row.get("External Data Source"),
-        feedbackChecked: row.get("Feedback Checked"),
-        listedOn: row.get("Listed On"),
-        availability: row.get("Availability"),
-        psCode: row.get("PS Code"),
-    }));
+    return rows.map(row => mapperListingObject(row));
 };
 
 const getAllZoneListings = async () => {
@@ -67,8 +41,30 @@ const getImagesFromSku = async (sku, limit) => {
     });
 }
 
+const updateListing = async (postType, sku, listingObj = {}) => {
+    const doc = new GoogleSpreadsheet(spreadsheetId, serviceAccountAuth);
+    await doc.loadInfo();
+    const sheet = doc.sheetsByIndex[0];
+    const rows = await sheet.getRows();
+
+    const row = rows.find(row => row.get('SKU') === sku && row.get('PostType') === postType)
+    const payload = _.omitBy(mapperSheetObject(listingObj), _.isNil)
+
+    const tel = listingObj['Tel.'] || row.get('Tel.')
+    const whatsapp = listingObj['Whatsapp'] || row.get('Whatsapp')
+
+    row.assign(_.omitBy({
+        ...payload,
+        'Tel.': tel ? ("'" + tel) : tel,
+        'Whatsapp': whatsapp ? ("'" + whatsapp) : whatsapp
+    }, _.isNil))
+    await row.save()
+    return mapperListingObject(row);
+}
+
 module.exports = {
     getAllListings,
     getImagesFromSku,
-    getAllZoneListings
+    getAllZoneListings,
+    updateListing
 }

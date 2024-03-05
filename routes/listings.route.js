@@ -1,5 +1,5 @@
 const express = require('express');
-const {getAllListings, getAllZoneListings} = require("../controllers/listings.controller");
+const {getAllListings, getAllZoneListings, updateListing} = require("../controllers/listings.controller");
 const {getImagesFromSku} = require("../controllers/listings.controller");
 const router = express.Router()/* GET users listing. */
 
@@ -12,6 +12,14 @@ router.get('/all', async function (req, res, next) {
 
 router.get('/zone/all', async function (req, res, next) {
     const response = await getAllZoneListings()
+    res.send({
+        data: response
+    });
+});
+
+router.put('/:postType/:sku', async function (req, res, next) {
+    const {postType, sku} = req.params
+    const response = await updateListing(postType, sku, req.body);
     res.send({
         data: response
     });
