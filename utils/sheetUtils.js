@@ -17,6 +17,7 @@ const mapperListingObject = (row) => {
         facingDirection: row.get("Facing direction"),
         unitNumber: row.get("Unit Number"),
         buildingYear: row.get("Building year"),
+        email: row.get("Email"),
         lineId: row.get("Line ID"),
         tel: row.get("Tel."),
         name: row.get("Name"),
