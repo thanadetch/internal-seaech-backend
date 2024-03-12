@@ -1,10 +1,17 @@
 const express = require('express');
-const {getAllListings, getAllZoneListings, updateListing} = require("../controllers/listings.controller");
+const {getAllListings, getAllZoneListings, updateListing, getAllLvId} = require("../controllers/listings.controller");
 const {getImagesFromSku} = require("../controllers/listings.controller");
 const router = express.Router()/* GET users listing. */
 
 router.get('/all', async function (req, res, next) {
     const response = await getAllListings()
+    res.send({
+        data: response
+    });
+});
+
+router.get('/lvId/all', async function (req, res, next) {
+    const response = await getAllLvId()
     res.send({
         data: response
     });

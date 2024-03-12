@@ -1,8 +1,8 @@
 const {GoogleSpreadsheet} = require('google-spreadsheet');
 const {serviceAccountAuth, drive} = require("../configs/google-auth");
-const {spreadsheetId, zoneSpreadsheetId} = require("../configs/environment");
+const {spreadsheetId, zoneSpreadsheetId, lvSheetId} = require("../configs/environment");
 const _ = require("lodash");
-const {mapperListingObject, mapperSheetObject} = require("../utils/sheetUtils");
+const {mapperListingObject, mapperSheetObject, mapperLvIdObject} = require("../utils/sheetUtils");
 
 const getAllListings = async () => {
     const doc = new GoogleSpreadsheet(spreadsheetId, serviceAccountAuth);
@@ -28,6 +28,14 @@ const getAllZoneListings = async () => {
     }, []))].sort((a, b) => a.localeCompare(b));
 };
 
+const getAllLvId = async () => {
+    const doc = new GoogleSpreadsheet(lvSheetId, serviceAccountAuth);
+    await doc.loadInfo();
+    const sheet = doc.sheetsByIndex[0];
+    const rows = await sheet.getRows();
+
+    return rows.map(row => mapperLvIdObject(row));
+}
 
 const getImagesFromSku = async (sku, limit) => {
     const response = await drive.files.list({
@@ -67,5 +75,6 @@ module.exports = {
     getAllListings,
     getImagesFromSku,
     getAllZoneListings,
-    updateListing
+    updateListing,
+    getAllLvId
 }

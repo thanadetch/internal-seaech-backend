@@ -35,6 +35,14 @@ const mapperListingObject = (row) => {
     }
 }
 
+const mapperLvIdObject = (row) => {
+    return {
+        id: row.get("id"),
+        sku: row.get("sku"),
+        type: row.get("type"),
+    }
+}
+
 const mapperSheetObject = (listingObj) => {
     return {
         "Area LP": listingObj.areaLP,
@@ -72,5 +80,6 @@ const mapperSheetObject = (listingObj) => {
 
 module.exports = {
     mapperListingObject,
-    mapperSheetObject
+    mapperSheetObject,
+    mapperLvIdObject
 }

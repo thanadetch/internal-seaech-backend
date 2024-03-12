@@ -4,6 +4,7 @@ const {
     GOOGLE_PRIVATE_KEY: googlePrivateKey,
     SPREADSHEET_ID: spreadsheetId,
     ZONE_SPREADSHEET_ID: zoneSpreadsheetId,
+    LV_SHEET_ID: lvSheetId
 } = process.env
 
 module.exports = {
@@ -11,5 +12,6 @@ module.exports = {
     googleClientEmail,
     googlePrivateKey,
     spreadsheetId,
-    zoneSpreadsheetId
+    zoneSpreadsheetId,
+    lvSheetId
 }
