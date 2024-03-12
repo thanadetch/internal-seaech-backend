@@ -52,11 +52,10 @@ const updateListing = async (postType, sku, listingObj = {}) => {
 
     const tel = listingObj['Tel.'] || row.get('Tel.')
     const whatsapp = listingObj['Whatsapp'] || row.get('Whatsapp')
-    const oldAvailability = row.get('Availability')
 
     row.assign(_.omitBy({
         ...payload,
-        'Update Availability': oldAvailability !== payload['Availability'] ? new Date() : null,
+        'Update Availability': new Date(),
         'Tel.': tel ? ("'" + tel) : tel,
         'Whatsapp': whatsapp ? ("'" + whatsapp) : whatsapp
     }, _.isNil))
