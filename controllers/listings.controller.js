@@ -1,6 +1,6 @@
 const {GoogleSpreadsheet} = require('google-spreadsheet');
 const {serviceAccountAuth, drive} = require("../configs/google-auth");
-const {spreadsheetId, zoneSpreadsheetId, lvSheetId} = require("../configs/environment");
+const {spreadsheetId, zoneSpreadsheetId, lvSheetId, imagesRootSpreadsheetId} = require("../configs/environment");
 const _ = require("lodash");
 const {mapperListingObject, mapperSheetObject, mapperLvIdObject} = require("../utils/sheetUtils");
 
@@ -39,7 +39,7 @@ const getAllLvId = async () => {
 
 const getImagesFromSku = async (sku, limit) => {
     const response = await drive.files.list({
-        q: `mimeType='application/vnd.google-apps.folder' and name='${sku}'`
+        q: `'${imagesRootSpreadsheetId}' in parents and mimeType='application/vnd.google-apps.folder' and name='${sku}'`
     });
     const folderId = response.data.files ? response.data.files[0].id : null;
     if (!folderId) throw new Error("FolderId not found");
