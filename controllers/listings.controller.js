@@ -1,13 +1,16 @@
 const {GoogleSpreadsheet} = require('google-spreadsheet');
 const {serviceAccountAuth, drive} = require("../configs/google-auth");
-const {spreadsheetId, zoneSpreadsheetId, lvSheetId, imagesRootSpreadsheetId} = require("../configs/environment");
+const {
+    internalSearchSpreadsheetId, zoneSpreadsheetId, imagesRootSpreadsheetId,
+    internalSearchListingsSheetId, internalSearchLVIdSheetId
+} = require("../configs/environment");
 const _ = require("lodash");
 const {mapperListingObject, mapperSheetObject, mapperLvIdObject} = require("../utils/sheetUtils");
 
 const getAllListings = async () => {
-    const doc = new GoogleSpreadsheet(spreadsheetId, serviceAccountAuth);
+    const doc = new GoogleSpreadsheet(internalSearchSpreadsheetId, serviceAccountAuth);
     await doc.loadInfo();
-    const sheet = doc.sheetsByIndex[0];
+    const sheet = doc.sheetsById[internalSearchListingsSheetId];
     const rows = await sheet.getRows();
 
     return rows.map(row => mapperListingObject(row));
@@ -29,9 +32,9 @@ const getAllZoneListings = async () => {
 };
 
 const getAllLvId = async () => {
-    const doc = new GoogleSpreadsheet(lvSheetId, serviceAccountAuth);
+    const doc = new GoogleSpreadsheet(internalSearchSpreadsheetId, serviceAccountAuth);
     await doc.loadInfo();
-    const sheet = doc.sheetsByIndex[0];
+    const sheet = doc.sheetsById[internalSearchLVIdSheetId]
     const rows = await sheet.getRows();
 
     return rows.map(row => mapperLvIdObject(row));
@@ -45,14 +48,15 @@ const getImagesFromSku = async (sku, limit) => {
     if (!folderId) throw new Error("FolderId not found");
     return await drive.files.list({
         q: `'${folderId}' in parents`,
-        pageSize: limit
+        pageSize: limit,
+        orderBy: 'name'
     });
 }
 
 const updateListing = async (postType, sku, listingObj = {}) => {
-    const doc = new GoogleSpreadsheet(spreadsheetId, serviceAccountAuth);
+    const doc = new GoogleSpreadsheet(internalSearchSpreadsheetId, serviceAccountAuth);
     await doc.loadInfo();
-    const sheet = doc.sheetsByIndex[0];
+    const sheet = doc.sheetsById[internalSearchListingsSheetId];
     const rows = await sheet.getRows();
 
     const row = rows.find(row => row.get('SKU') === sku && row.get('PostType') === postType)

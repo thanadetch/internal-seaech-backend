@@ -1,3 +1,4 @@
+const {convertToNumber} = require("./numberUtils");
 const mapperListingObject = (row) => {
     return {
         areaLP: row.get("Area LP"),
@@ -8,8 +9,8 @@ const mapperListingObject = (row) => {
         postFrom: row.get("PostFrom"),
         titleTH: row.get("Title TH"),
         titleEN: row.get("Title EN"),
-        price: row.get("Price") ? +row.get("Price") : row.get("Price"),
-        areaSize: row.get("AreaSize") ? +row.get("AreaSize") : row.get("AreaSize"),
+        price: convertToNumber(row.get("Price")),
+        areaSize: convertToNumber(row.get("AreaSize")),
         floor: row.get("Floor"),
         bedroom: row.get("Bedroom"),
         bathroom: row.get("Bathroom"),
