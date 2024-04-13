@@ -2,7 +2,7 @@ const {convertToNumber} = require("./numberUtils");
 const mapperListingObject = (row) => {
     return {
         areaLP: row.get("Area LP"),
-        areaLV: row.get("Area LV"),
+        areaLV: `${row.get("Area LV")}, ${row.get("Area LP")}`,
         sku: row.get("SKU"),
         propertyType: row.get("Property Type"),
         postType: row.get("PostType"),
