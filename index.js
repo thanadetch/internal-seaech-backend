@@ -5,6 +5,7 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 
 const listingsRouter = require('./routes/listings.route');
+const psRouter = require('./routes/ps.route');
 const cors = require("cors");
 const {port} = require("./configs/environment");
 const {checkAuth} = require("./middleware/auth");
@@ -19,6 +20,7 @@ app.use(cookieParser());
 app.use(checkAuth)
 
 app.use('/api/listings', listingsRouter);
+app.use('/api/ps', psRouter);
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)

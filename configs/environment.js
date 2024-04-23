@@ -6,7 +6,10 @@ const {
     INTERNAL_SEARCH_LISTINGS_SHEET_ID: internalSearchListingsSheetId,
     INTERNAL_SEARCH_LV_ID_SHEET_ID: internalSearchLVIdSheetId,
     ZONE_SPREADSHEET_ID: zoneSpreadsheetId,
-    IMAGES_ROOT_SPREADSHEET_ID: imagesRootSpreadsheetId
+    IMAGES_ROOT_SPREADSHEET_ID: imagesRootSpreadsheetId,
+    PS_USERNAME: psUsername,
+    PS_PASSWORD: psPassword,
+    PS_WEB_URL: psWebURL,
 } = process.env
 
 module.exports = {
@@ -17,5 +20,8 @@ module.exports = {
     internalSearchListingsSheetId,
     internalSearchLVIdSheetId,
     zoneSpreadsheetId,
-    imagesRootSpreadsheetId
+    imagesRootSpreadsheetId,
+    psUsername,
+    psPassword,
+    psWebURL
 }
