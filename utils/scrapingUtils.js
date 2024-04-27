@@ -3,6 +3,9 @@ const cheerio = require("cheerio");
 const chromium = require("@sparticuz/chromium");
 const puppeteer = require("puppeteer-core");
 
+chromium.setHeadlessMode = true;
+chromium.setGraphicsMode = false;
+
 const signIn = async () => {
     // Launch a headless browser instance.
     const browser = await puppeteer.launch({
@@ -12,6 +15,8 @@ const signIn = async () => {
         headless: chromium.headless,
         ignoreHTTPSErrors: true,
         timeout: 120000,
+
+
     });
 
     const page = await browser.newPage();
