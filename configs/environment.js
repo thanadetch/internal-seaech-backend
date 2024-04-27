@@ -10,6 +10,8 @@ const {
     PS_USERNAME: psUsername,
     PS_PASSWORD: psPassword,
     PS_WEB_URL: psWebURL,
+    IS_LOCAL: isLocal,
+    GOOGLE_CHROME_PATH: googleChromePath,
 } = process.env
 
 module.exports = {
@@ -23,5 +25,7 @@ module.exports = {
     imagesRootSpreadsheetId,
     psUsername,
     psPassword,
-    psWebURL
+    psWebURL,
+    isLocal: isLocal === 'true',
+    googleChromePath
 }

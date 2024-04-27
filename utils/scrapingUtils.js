@@ -1,11 +1,17 @@
-const {psWebURL, psUsername, psPassword} = require("../configs/environment");
-const {launch} = require("puppeteer");
+const {psWebURL, psUsername, psPassword, isLocal, googleChromePath} = require("../configs/environment");
 const cheerio = require("cheerio");
+const chromium = require("@sparticuz/chromium");
+const puppeteer = require("puppeteer-core");
 
 const signIn = async () => {
     // Launch a headless browser instance.
-    const browser = await launch({
-        headless: true,
+    console.log(await chromium.executablePath())
+    const browser = await puppeteer.launch({
+        args: isLocal ? puppeteer.defaultArgs() : chromium.args,
+        defaultViewport: chromium.defaultViewport,
+        executablePath: isLocal ? googleChromePath : await chromium.executablePath(),
+        headless: chromium.headless,
+        ignoreHTTPSErrors: true,
         timeout: 120000,
     });
 
@@ -14,8 +20,6 @@ const signIn = async () => {
         dialog.type() === "beforeunload" && dialog.accept()
     ;
     page.on("dialog", acceptBeforeUnload);
-
-    await page.setViewport({width: 1366, height: 768})
 
     await page.goto(psWebURL);
 
