@@ -5,7 +5,6 @@ const puppeteer = require("puppeteer-core");
 
 const signIn = async () => {
     // Launch a headless browser instance.
-    console.log(await chromium.executablePath())
     const browser = await puppeteer.launch({
         args: isLocal ? puppeteer.defaultArgs() : chromium.args,
         defaultViewport: chromium.defaultViewport,
