@@ -11,7 +11,7 @@ router.get('/setup/browser', async function (req, res, next) {
 });
 
 router.get('/setup/signIn', async function (req, res, next) {
-    await getPageAndSignIn()
+    getPageAndSignIn()
     res.send({
         data: true
     });
