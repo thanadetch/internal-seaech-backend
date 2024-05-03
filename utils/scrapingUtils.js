@@ -11,7 +11,7 @@ const signIn = async () => {
     const browser = await puppeteer.launch({
         args: isLocal ? puppeteer.defaultArgs() : chromium.args,
         defaultViewport: chromium.defaultViewport,
-        executablePath: isLocal ? googleChromePath : await chromium.executablePath(),
+        executablePath: isLocal ? googleChromePath : await chromium.executablePath,
         headless: chromium.headless,
         ignoreHTTPSErrors: true,
         timeout: 120000,
