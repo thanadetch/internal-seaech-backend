@@ -6,15 +6,29 @@ const puppeteer = require("puppeteer-core");
 chromium.setHeadlessMode = true;
 chromium.setGraphicsMode = false;
 
+let browserInstance = null;
+let pageInstance = null;
+
 const getBrowser = async () => {
-    return puppeteer.launch({
-        args: isLocal ? puppeteer.defaultArgs() : chromium.args,
-        defaultViewport: chromium.defaultViewport,
-        executablePath: isLocal ? googleChromePath : await chromium.executablePath(),
-        headless: chromium.headless,
-        ignoreHTTPSErrors: true,
-        timeout: 120000,
-    });
+    if (!browserInstance) {
+        browserInstance = puppeteer.launch({
+            args: isLocal ? puppeteer.defaultArgs() : chromium.args,
+            defaultViewport: chromium.defaultViewport,
+            executablePath: isLocal ? googleChromePath : await chromium.executablePath(),
+            headless: chromium.headless,
+            ignoreHTTPSErrors: true,
+            timeout: 120000,
+        });
+    }
+    return browserInstance;
+}
+
+const getPageAndSignIn = async () => {
+    if (!pageInstance) {
+        const {page} = await signIn();
+        pageInstance = page
+    }
+    return pageInstance;
 }
 
 const signIn = async () => {
@@ -96,6 +110,8 @@ module.exports = {
     signIn,
     getPageData,
     loadPage,
-    propertyAvailableMapper
+    propertyAvailableMapper,
+    getBrowser,
+    getPageAndSignIn
 }
 

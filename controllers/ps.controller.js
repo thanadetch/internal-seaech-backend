@@ -1,7 +1,7 @@
-const {signIn, loadPage, propertyAvailableMapper, setBrowser} = require("../utils/scrapingUtils");
+const {loadPage, propertyAvailableMapper, getPageAndSignIn} = require("../utils/scrapingUtils");
 
 const getAvailableFromPsCode = async (psCode) => {
-    const {page} = await signIn();
+    const page = await getPageAndSignIn();
     const $ = await loadPage(page, psCode);
     return propertyAvailableMapper($)
 }
