@@ -18,6 +18,17 @@ const signIn = async () => {
     });
 
     const page = await browser.newPage();
+
+    // Block unnecessary resources
+    await page.setRequestInterception(true);
+    page.on('request', (req) => {
+        if (req.resourceType() === 'font' || req.resourceType() === 'image' || req.resourceType() === 'stylesheet') {
+            req.abort();
+        } else {
+            req.continue();
+        }
+    });
+
     const acceptBeforeUnload = dialog =>
         dialog.type() === "beforeunload" && dialog.accept()
     ;

@@ -9,6 +9,7 @@ const psRouter = require('./routes/ps.route');
 const cors = require("cors");
 const {port} = require("./configs/environment");
 const {checkAuth} = require("./middleware/auth");
+const {getPageInstance} = require("./controllers/ps.controller");
 
 const app = express();
 
@@ -22,6 +23,8 @@ app.use(checkAuth)
 app.use('/api/listings', listingsRouter);
 app.use('/api/ps', psRouter);
 
-app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`)
+app.listen(port, async () => {
+    console.log('Starting browser')
+    await getPageInstance()
+    console.log(`App listening on port ${port}`)
 })
