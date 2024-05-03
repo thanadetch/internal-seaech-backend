@@ -12,6 +12,17 @@ const {
     PS_WEB_URL: psWebURL,
     IS_LOCAL: isLocal,
     GOOGLE_CHROME_PATH: googleChromePath,
+    FIREBASE_TYPE: firebaseType,
+    FIREBASE_PROJECT_ID: firebaseProjectId,
+    FIREBASE_PRIVATE_KEY_ID: firebasePrivateKeyId,
+    FIREBASE_PRIVATE_KEY: firebasePrivateKey,
+    FIREBASE_CLIENT_EMAIL: firebaseClientEmail,
+    FIREBASE_CLIENT_ID: firebaseClientId,
+    FIREBASE_AUTH_URI: firebaseAuthUri,
+    FIREBASE_TOKEN_URI: firebaseTokenUri,
+    FIREBASE_AUTH_PROVIDER_X509_CERT_URL: firebaseAuthProviderX509CertUrl,
+    FIREBASE_CLIENT_X509_CERT_URL: firebaseClientX509CertUrl,
+    FIREBASE_UNIVERSE_DOMAIN: firebaseUniverseDomain,
 } = process.env
 
 module.exports = {
@@ -27,5 +38,16 @@ module.exports = {
     psPassword,
     psWebURL,
     isLocal: isLocal === 'true',
-    googleChromePath
+    googleChromePath,
+    firebaseType,
+    firebaseProjectId,
+    firebasePrivateKeyId,
+    firebasePrivateKey,
+    firebaseClientEmail,
+    firebaseClientId,
+    firebaseAuthUri,
+    firebaseTokenUri,
+    firebaseAuthProviderX509CertUrl,
+    firebaseClientX509CertUrl,
+    firebaseUniverseDomain,
 }
