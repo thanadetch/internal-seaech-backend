@@ -11,11 +11,8 @@ const getPageInstance = async () => {
 };
 
 const getAvailableFromPsCode = async (psCode) => {
-    console.log(new Date())
     const page = await getPageInstance()
-    console.log(new Date())
     const $ = await loadPage(page, psCode);
-    console.log(new Date())
     return propertyAvailableMapper($)
 }
 
