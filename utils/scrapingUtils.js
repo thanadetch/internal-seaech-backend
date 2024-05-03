@@ -6,17 +6,25 @@ const puppeteer = require("puppeteer-core");
 chromium.setHeadlessMode = true;
 chromium.setGraphicsMode = false;
 
+let browser = null
+
+const setBrowser = async () => {
+    if (!browser) {
+        browser = await puppeteer.launch({
+            args: isLocal ? puppeteer.defaultArgs() : chromium.args,
+            defaultViewport: chromium.defaultViewport,
+            executablePath: isLocal ? googleChromePath : await chromium.executablePath(),
+            headless: chromium.headless,
+            ignoreHTTPSErrors: true,
+            timeout: 120000,
+        });
+    }
+    return browser
+}
+
 const signIn = async () => {
     // Launch a headless browser instance.
-    const browser = await puppeteer.launch({
-        args: isLocal ? puppeteer.defaultArgs() : chromium.args,
-        defaultViewport: chromium.defaultViewport,
-        executablePath: isLocal ? googleChromePath : await chromium.executablePath(),
-        headless: chromium.headless,
-        ignoreHTTPSErrors: true,
-        timeout: 120000,
-    });
-
+    await setBrowser()
     const page = await browser.newPage();
 
     // Block unnecessary resources
@@ -90,6 +98,7 @@ const propertyAvailableMapper = async ($) => {
 }
 
 module.exports = {
+    setBrowser,
     signIn,
     getPageData,
     loadPage,

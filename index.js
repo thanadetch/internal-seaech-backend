@@ -24,7 +24,5 @@ app.use('/api/listings', listingsRouter);
 app.use('/api/ps', psRouter);
 
 app.listen(port, async () => {
-    console.log('Starting browser')
-    await getPageInstance()
     console.log(`App listening on port ${port}`)
 })

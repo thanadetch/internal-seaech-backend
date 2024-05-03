@@ -1,9 +1,10 @@
 const express = require("express");
 const {getAvailableFromPsCode, getPageInstance} = require("../controllers/ps.controller");
+const {setBrowser} = require("../utils/scrapingUtils");
 const router = express.Router()/* GET users listing. */
 
-router.get('/setPage', async function (req, res, next) {
-    await getPageInstance()
+router.get('/setBrowser', async function (req, res, next) {
+    await setBrowser()
     res.send({
         data: true
     });
