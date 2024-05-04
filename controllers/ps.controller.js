@@ -1,6 +1,7 @@
 const axios = require("axios");
 const cookie = require('cookie');
 const {psWebURL, psUsername, psPassword} = require("../configs/environment");
+const {getComment} = require("../utils/psUtils");
 
 const getCsrfToken = async () => {
     const response = await axios.get(`${psWebURL}/api/auth/csrf/`);
@@ -77,12 +78,13 @@ const getAvailableFromPsCode = async (psCode) => {
     const availableStatus = {
         available: "Available",
         rented: "Not Available",
-        'no-information': "Cannot contact"
+        'no-information': "Cannot contact",
+        'to-sell-with-tenant': 'Not Available'
     }
 
     return {
         availability: availableStatus[listing?.availability],
-        comment: listing?.availability === 'rented' ? `Available on ${listing?.availableFrom}` : ''
+        comment: getComment(listing)
     }
 }
 
