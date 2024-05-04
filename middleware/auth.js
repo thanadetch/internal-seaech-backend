@@ -1,9 +1,6 @@
 const {admin} = require("../configs/firebase-config");
 
 const checkAuth = async (req, res, next) => {
-    // test
-    return next();
-
     const token = req.headers.authorization?.split(' ')[1];
     try {
         const decodeValue = await admin.auth().verifyIdToken(token);
