@@ -82,7 +82,7 @@ const getAvailableFromPsCode = async (psCode) => {
 
     return {
         availability: availableStatus[listing?.availability],
-        comment: listing?.availability === 'rented' ? `Rented Until ${listing?.availableFrom}` : ''
+        comment: listing?.availability === 'rented' ? `Available on ${listing?.availableFrom}` : ''
     }
 }
 
