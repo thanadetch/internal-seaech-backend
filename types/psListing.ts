@@ -65,18 +65,12 @@ export interface PsListing {
 }
 
 export interface Address {
-    province: Province;
+    province: string;
     district: string;
     subdistrict: null | string;
     neighborhood: null | string;
     street: string;
     postcode: string;
-}
-
-export enum Province {
-    Bangkok = "Bangkok",
-    ChonBuri = "Chon Buri",
-    SamutPrakan = "Samut Prakan",
 }
 
 export enum AEManEventResult {
