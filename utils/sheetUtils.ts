@@ -1,6 +1,9 @@
-const {convertToNumber} = require("./numberUtils");
-const mapperListingObject = (row) => {
-    return {
+import {GoogleSpreadsheetRow} from "google-spreadsheet";
+import {convertToNumber} from "./numberUtils";
+import {Listing, SheetListing} from "../types";
+
+export const mapperListingObject = (row: GoogleSpreadsheetRow<Record<string, any>>) => {
+    const listing: Listing = {
         areaLP: row.get("Area LP"),
         areaLV: `${row.get("Area LV")}, ${row.get("Area LP")}`,
         sku: row.get("SKU"),
@@ -33,19 +36,21 @@ const mapperListingObject = (row) => {
         comment: row.get("Comment"),
         exclusive: row.get("Exclusive"),
         updateAvailability: row.get("Update Availability")
-    }
-}
+    };
 
-const mapperLvIdObject = (row) => {
+    return listing;
+};
+
+export const mapperLvIdObject = (row: GoogleSpreadsheetRow<Record<string, any>>) => {
     return {
         id: row.get("id"),
         sku: row.get("sku"),
         type: row.get("type"),
-    }
-}
+    };
+};
 
-const mapperSheetObject = (listingObj) => {
-    return {
+export const mapperSheetObject = (listingObj: Listing) => {
+    const sheetListing: SheetListing = {
         "Area LP": listingObj.areaLP,
         "Area LV": listingObj.areaLV,
         "SKU": listingObj.sku,
@@ -76,11 +81,6 @@ const mapperSheetObject = (listingObj) => {
         "PS Code": listingObj.psCode,
         "Comment": listingObj.comment,
         "Exclusive": listingObj.exclusive
-    }
-}
-
-module.exports = {
-    mapperListingObject,
-    mapperSheetObject,
-    mapperLvIdObject
-}
+    };
+    return sheetListing;
+};
