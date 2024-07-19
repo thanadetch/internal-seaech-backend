@@ -8,4 +8,3 @@ node_modules
 out
 gen
 .env
-dist
