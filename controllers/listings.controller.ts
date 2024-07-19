@@ -8,13 +8,13 @@ import {
 } from "../configs/environment";
 import _ from "lodash";
 import {mapperListingObject, mapperSheetObject, mapperLvIdObject} from "../utils/sheetUtils";
-import {Listing} from "../types";
+import {Listing, SheetListing} from "../types";
 
 export const getAllListings = async () => {
     const doc = new GoogleSpreadsheet(internalSearchSpreadsheetId, serviceAccountAuth);
     await doc.loadInfo();
-    const sheet = doc.sheetsById[internalSearchListingsSheetId as any];
-    const rows = await sheet.getRows();
+    const sheet = doc.sheetsById[+internalSearchListingsSheetId];
+    const rows = await sheet.getRows<SheetListing>();
 
     return rows.map(row => mapperListingObject(row));
 };
@@ -37,7 +37,7 @@ export const getAllListings = async () => {
 export const getAllLvId = async () => {
     const doc = new GoogleSpreadsheet(internalSearchSpreadsheetId, serviceAccountAuth);
     await doc.loadInfo();
-    const sheet = doc.sheetsById[internalSearchLVIdSheetId as any];
+    const sheet = doc.sheetsById[+internalSearchLVIdSheetId];
     const rows = await sheet.getRows();
 
     return rows.map(row => mapperLvIdObject(row));
@@ -59,21 +59,23 @@ export const getImagesFromSku = async (sku: string, limit?: number) => {
 export const updateListing = async (postType: string, sku: string, listingObj: Listing) => {
     const doc = new GoogleSpreadsheet(internalSearchSpreadsheetId, serviceAccountAuth);
     await doc.loadInfo();
-    const sheet = doc.sheetsById[internalSearchListingsSheetId as any];
-    const rows = await sheet.getRows();
+    const sheet = doc.sheetsById[+internalSearchListingsSheetId];
+    const rows = await sheet.getRows<SheetListing>();
 
     const row = rows.find(row => row.get("SKU") === sku && row.get("PostType") === postType);
     if (!row) throw new Error("Row not found");
-    const payload = _.omitBy(mapperSheetObject(listingObj), _.isNil);
     const tel = listingObj.tel || row.get("Tel.");
     const whatsapp = listingObj.whatsapp || row.get("Whatsapp");
+    const areaLV = row.get("Area LV");
 
-    row.assign(_.omitBy({
-        ...payload,
-        "Update Availability": new Date(),
-        "Tel.": tel ? ("'" + tel) : tel,
-        "Whatsapp": whatsapp ? ("'" + whatsapp) : whatsapp
-    }, _.isNil));
+    const payload = _.omitBy(mapperSheetObject({
+        ...listingObj,
+        areaLV,
+        updateAvailability: new Date().toISOString(),
+        tel: tel ? ("'" + tel) : tel,
+        whatsapp: whatsapp ? ("'" + whatsapp) : whatsapp
+    }), _.isNil) as SheetListing;
+    row.assign(payload);
     await row.save();
     return mapperListingObject(row);
 };

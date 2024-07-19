@@ -12,7 +12,7 @@ const sheetUtils_1 = require("../utils/sheetUtils");
 const getAllListings = async () => {
     const doc = new google_spreadsheet_1.GoogleSpreadsheet(environment_1.internalSearchSpreadsheetId, google_auth_1.serviceAccountAuth);
     await doc.loadInfo();
-    const sheet = doc.sheetsById[environment_1.internalSearchListingsSheetId];
+    const sheet = doc.sheetsById[+environment_1.internalSearchListingsSheetId];
     const rows = await sheet.getRows();
     return rows.map(row => (0, sheetUtils_1.mapperListingObject)(row));
 };
@@ -34,7 +34,7 @@ exports.getAllListings = getAllListings;
 const getAllLvId = async () => {
     const doc = new google_spreadsheet_1.GoogleSpreadsheet(environment_1.internalSearchSpreadsheetId, google_auth_1.serviceAccountAuth);
     await doc.loadInfo();
-    const sheet = doc.sheetsById[environment_1.internalSearchLVIdSheetId];
+    const sheet = doc.sheetsById[+environment_1.internalSearchLVIdSheetId];
     const rows = await sheet.getRows();
     return rows.map(row => (0, sheetUtils_1.mapperLvIdObject)(row));
 };
@@ -56,20 +56,22 @@ exports.getImagesFromSku = getImagesFromSku;
 const updateListing = async (postType, sku, listingObj) => {
     const doc = new google_spreadsheet_1.GoogleSpreadsheet(environment_1.internalSearchSpreadsheetId, google_auth_1.serviceAccountAuth);
     await doc.loadInfo();
-    const sheet = doc.sheetsById[environment_1.internalSearchListingsSheetId];
+    const sheet = doc.sheetsById[+environment_1.internalSearchListingsSheetId];
     const rows = await sheet.getRows();
     const row = rows.find(row => row.get("SKU") === sku && row.get("PostType") === postType);
     if (!row)
         throw new Error("Row not found");
-    const payload = lodash_1.default.omitBy((0, sheetUtils_1.mapperSheetObject)(listingObj), lodash_1.default.isNil);
     const tel = listingObj.tel || row.get("Tel.");
     const whatsapp = listingObj.whatsapp || row.get("Whatsapp");
-    row.assign(lodash_1.default.omitBy({
-        ...payload,
-        "Update Availability": new Date(),
-        "Tel.": tel ? ("'" + tel) : tel,
-        "Whatsapp": whatsapp ? ("'" + whatsapp) : whatsapp
-    }, lodash_1.default.isNil));
+    const areaLV = row.get("Area LV");
+    const payload = lodash_1.default.omitBy((0, sheetUtils_1.mapperSheetObject)({
+        ...listingObj,
+        areaLV,
+        updateAvailability: new Date().toISOString(),
+        tel: tel ? ("'" + tel) : tel,
+        whatsapp: whatsapp ? ("'" + whatsapp) : whatsapp
+    }), lodash_1.default.isNil);
+    row.assign(payload);
     await row.save();
     return (0, sheetUtils_1.mapperListingObject)(row);
 };

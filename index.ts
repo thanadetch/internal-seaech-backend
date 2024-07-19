@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 import {checkAuth} from "./middleware/auth";
 import express from "express";
 import cookieParser from "cookie-parser";
@@ -6,7 +8,6 @@ import cors from "cors";
 import {port} from "./configs/environment";
 import {listingsRouter, psRouter} from "./routes";
 
-require("dotenv").config();
 const app = express();
 
 app.use(cors());

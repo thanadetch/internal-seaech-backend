@@ -2,7 +2,7 @@ import {GoogleSpreadsheetRow} from "google-spreadsheet";
 import {convertToNumber} from "./numberUtils";
 import {Listing, SheetListing} from "../types";
 
-export const mapperListingObject = (row: GoogleSpreadsheetRow<Record<string, any>>) => {
+export const mapperListingObject = (row:  GoogleSpreadsheetRow<SheetListing>) => {
     const listing: Listing = {
         areaLP: row.get("Area LP"),
         areaLV: `${row.get("Area LV")}, ${row.get("Area LP")}`,
@@ -68,6 +68,7 @@ export const mapperSheetObject = (listingObj: Listing) => {
         "Facing direction": listingObj.facingDirection,
         "Unit Number": listingObj.unitNumber,
         "Building year": listingObj.buildingYear,
+        "Email": listingObj.email,
         "Line ID": listingObj.lineId,
         "Tel.": listingObj.tel,
         "Name": listingObj.name,
@@ -80,6 +81,7 @@ export const mapperSheetObject = (listingObj: Listing) => {
         "Availability": listingObj.availability,
         "PS Code": listingObj.psCode,
         "Comment": listingObj.comment,
+        "Update Availability": listingObj.updateAvailability,
         "Exclusive": listingObj.exclusive
     };
     return sheetListing;

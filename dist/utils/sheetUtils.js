@@ -67,6 +67,7 @@ const mapperSheetObject = (listingObj) => {
         "Facing direction": listingObj.facingDirection,
         "Unit Number": listingObj.unitNumber,
         "Building year": listingObj.buildingYear,
+        "Email": listingObj.email,
         "Line ID": listingObj.lineId,
         "Tel.": listingObj.tel,
         "Name": listingObj.name,
@@ -79,6 +80,7 @@ const mapperSheetObject = (listingObj) => {
         "Availability": listingObj.availability,
         "PS Code": listingObj.psCode,
         "Comment": listingObj.comment,
+        "Update Availability": listingObj.updateAvailability,
         "Exclusive": listingObj.exclusive
     };
     return sheetListing;

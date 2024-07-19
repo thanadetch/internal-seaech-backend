@@ -16,6 +16,7 @@ export type SheetListing = {
     "Facing direction": string
     "Unit Number": string
     "Building year": string
+    "Email": string
     "Line ID": string
     "Tel.": string
     "Name": string
@@ -26,7 +27,8 @@ export type SheetListing = {
     "Feedback Checked": string
     "Listed On": string
     "Availability": string
-    "PS Code": string
     "Comment": string
+    "Update Availability": string
     "Exclusive": string
+    "PS Code": string
 }
