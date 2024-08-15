@@ -15,7 +15,7 @@ psRouter.get("/available/:psCode", async function (req, res, next) {
     });
 });
 
-psRouter.post("/internal-search/", async function (req, res, next) {
+psRouter.post("/internal-search", async function (req, res, next) {
     const response = await getInternalSearchListing();
     res.send({
         data: response

@@ -109,7 +109,6 @@ const getListings = async () => {
 
 export const getInternalSearchListing = async () => {
     const response = await getListings();
-
     return response.map((item) => ({
         "Area LP": item.address.neighborhood,
         "Area LV": "",

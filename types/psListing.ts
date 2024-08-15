@@ -53,7 +53,7 @@ export interface PsListing {
     exclusivity: null;
     commercialPropertyType: null;
     dupInternal: number | null;
-    dupSubClusterId: DupSubClusterID | null;
+    dupSubClusterId: string | null;
     saleType: null | string;
     subclusterRentPriceInfo: AvailableFrom;
     subclusterSalePriceInfo: AvailableFrom;
@@ -127,12 +127,6 @@ export enum RoomType {
     Storage = "storage",
 }
 
-export enum DupSubClusterID {
-    The10354_RentTwoBedrooms = "10354_rent_two_bedrooms",
-    The214_RentOneBedroom = "214_rent_one_bedroom",
-    The510_RentOneBedroom = "510_rent_one_bedroom",
-}
-
 export interface Duplication {
     availability: Availability;
     cdnImages: CDNImage[];
@@ -180,7 +174,7 @@ export interface Duplication {
     exclusivity: string;
     commercialPropertyType: string;
     dupInternal: number;
-    dupSubClusterId: DupSubClusterID;
+    dupSubClusterId: string;
     saleType: string;
     sortingScore: string;
     subclusterRentPriceInfo: AvailableFrom;

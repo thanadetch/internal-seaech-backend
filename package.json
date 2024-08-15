@@ -3,9 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build": "rimraf dist && tsc",
-    "start": "node dist/index.js",
-    "watch": "tsc --watch"
+    "start": "ts-node index.ts",
+    "start:watch": "nodemon --watch '*.ts' --exec 'ts-node' index.ts"
   },
   "dependencies": {
     "axios": "^1.6.8",
@@ -29,7 +28,8 @@
     "@types/lodash": "^4.17.7",
     "@types/morgan": "^1.9.9",
     "@types/node": "^20.14.11",
-    "rimraf": "^6.0.1",
-    "typescript": "^5.5.3"
+    "nodemon": "^3.1.4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4"
   }
 }
