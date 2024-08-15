@@ -15,6 +15,11 @@ app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());
+
+// Health check route
+app.get("/", (req, res) => {
+    res.send({ status: "ok" });
+});
 app.use(checkAuth);
 
 app.use("/api/listings", listingsRouter);
