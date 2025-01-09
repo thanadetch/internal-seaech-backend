@@ -32,7 +32,7 @@ export const getAllListings = async () => {
     };
 
     const allBatches = Array.from({length: totalBatches}, (_, i) => fetchBatch(i));
-    const results = await Promise.all(allBatches);
+    const results = await Promise.all(allBatches); 
 
     return results.flat();
 };
