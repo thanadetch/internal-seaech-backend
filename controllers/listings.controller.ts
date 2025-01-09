@@ -14,9 +14,27 @@ export const getAllListings = async () => {
     const doc = new GoogleSpreadsheet(internalSearchSpreadsheetId, serviceAccountAuth);
     await doc.loadInfo();
     const sheet = doc.sheetsById[+internalSearchListingsSheetId];
-    const rows = await sheet.getRows<SheetListing>();
 
-    return rows.map(row => mapperListingObject(row));
+    // Fetch the total count of rows
+    const totalRows = (await sheet.getRows<SheetListing>()).length;
+
+    // Define the batch size
+    const batchSize = 5000; // Adjust the batch size as needed
+
+    // Calculate the number of batches
+    const totalBatches = Math.ceil(totalRows / batchSize);
+
+    // Fetch data in parallel batches
+    const fetchBatch = async (batchIndex: number) => {
+        const startRow = batchIndex * batchSize;
+        const rows = await sheet.getRows<SheetListing>({offset: startRow, limit: batchSize});
+        return rows.map(row => mapperListingObject(row));
+    };
+
+    const allBatches = Array.from({length: totalBatches}, (_, i) => fetchBatch(i));
+    const results = await Promise.all(allBatches);
+
+    return results.flat();
 };
 
 // export const getAllZoneListings = async () => {
