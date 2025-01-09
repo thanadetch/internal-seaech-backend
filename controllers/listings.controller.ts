@@ -10,31 +10,14 @@ import _ from "lodash";
 import {mapperListingObject, mapperSheetObject, mapperLvIdObject} from "../utils/sheetUtils";
 import {Listing, SheetListing} from "../types";
 
+const doc = new GoogleSpreadsheet(internalSearchSpreadsheetId, serviceAccountAuth);
+
 export const getAllListings = async () => {
-    const doc = new GoogleSpreadsheet(internalSearchSpreadsheetId, serviceAccountAuth);
     await doc.loadInfo();
     const sheet = doc.sheetsById[+internalSearchListingsSheetId];
+    const rows = await sheet.getRows<SheetListing>();
 
-    // Fetch the total count of rows
-    const totalRows = (await sheet.getRows<SheetListing>()).length;
-
-    // Define the batch size
-    const batchSize = 10000; // Adjust the batch size as needed
-
-    // Calculate the number of batches
-    const totalBatches = Math.ceil(totalRows / batchSize);
-
-    // Fetch data in parallel batches
-    const fetchBatch = async (batchIndex: number) => {
-        const startRow = batchIndex * batchSize;
-        const rows = await sheet.getRows<SheetListing>({offset: startRow, limit: batchSize});
-        return rows.map(row => mapperListingObject(row));
-    };
-
-    const allBatches = Array.from({length: totalBatches}, (_, i) => fetchBatch(i));
-    const results = await Promise.all(allBatches);
-
-    return results.flat();
+    return rows.map(row => mapperListingObject(row));
 };
 
 // export const getAllZoneListings = async () => {
