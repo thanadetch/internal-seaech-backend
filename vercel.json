@@ -11,5 +11,10 @@
       "src": "/(.*)",
       "dest": "/index.ts"
     }
-  ]
+  ],
+  "functions": {
+    "*.ts": {
+      "maxDuration": 60
+    }
+  }
 }
