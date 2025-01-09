@@ -19,7 +19,7 @@ export const getAllListings = async () => {
     const totalRows = (await sheet.getRows<SheetListing>()).length;
 
     // Define the batch size
-    const batchSize = 5000; // Adjust the batch size as needed
+    const batchSize = 4000; // Adjust the batch size as needed
 
     // Calculate the number of batches
     const totalBatches = Math.ceil(totalRows / batchSize);
@@ -32,7 +32,7 @@ export const getAllListings = async () => {
     };
 
     const allBatches = Array.from({length: totalBatches}, (_, i) => fetchBatch(i));
-    const results = await Promise.all(allBatches); 
+    const results = await Promise.all(allBatches);
 
     return results.flat();
 };
