@@ -1,11 +1,5 @@
-import {GoogleSpreadsheet} from "google-spreadsheet";
-import {drive, serviceAccountAuth} from "../configs/google-auth";
-import {
-    imagesRootSpreadsheetId,
-    internalSearchListingsSheetId,
-    internalSearchLVIdSheetId,
-    internalSearchSpreadsheetId
-} from "../configs/environment";
+import {drive} from "../configs/google-auth";
+import {imagesRootSpreadsheetId} from "../configs/environment";
 import _ from "lodash";
 import {mapperListingObject, mapperLvIdObject, mapperSheetObject} from "../utils/sheetUtils";
 import {Listing, SheetListing} from "../types";
@@ -33,9 +27,6 @@ export const getAllListings = async () => {
 };
 
 export const getAllLvId = async () => {
-    const doc = new GoogleSpreadsheet(internalSearchSpreadsheetId, serviceAccountAuth);
-    await doc.loadInfo();
-    const sheet = doc.sheetsById[+internalSearchLVIdSheetId];
     const rows = await sheet.getRows();
 
     return rows.map(row => mapperLvIdObject(row));
@@ -55,9 +46,6 @@ export const getImagesFromSku = async (sku: string, limit?: number) => {
 };
 
 export const updateListing = async (postType: string, sku: string, listingObj: Listing) => {
-    const doc = new GoogleSpreadsheet(internalSearchSpreadsheetId, serviceAccountAuth);
-    await doc.loadInfo();
-    const sheet = doc.sheetsById[+internalSearchListingsSheetId];
     const rows = await sheet.getRows<SheetListing>();
 
     const row = rows.find(row => row.get("SKU") === sku && row.get("PostType") === postType);
