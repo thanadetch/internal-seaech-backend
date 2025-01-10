@@ -1,39 +1,36 @@
 import {GoogleSpreadsheet} from "google-spreadsheet";
-import {serviceAccountAuth, drive} from "../configs/google-auth";
+import {drive, serviceAccountAuth} from "../configs/google-auth";
 import {
-    internalSearchSpreadsheetId,
     imagesRootSpreadsheetId,
     internalSearchListingsSheetId,
-    internalSearchLVIdSheetId
+    internalSearchLVIdSheetId,
+    internalSearchSpreadsheetId
 } from "../configs/environment";
 import _ from "lodash";
-import {mapperListingObject, mapperSheetObject, mapperLvIdObject} from "../utils/sheetUtils";
+import {mapperListingObject, mapperLvIdObject, mapperSheetObject} from "../utils/sheetUtils";
 import {Listing, SheetListing} from "../types";
-
-const doc = new GoogleSpreadsheet(internalSearchSpreadsheetId, serviceAccountAuth);
+import {sheet} from "../configs/spreadsheet";
 
 export const getAllListings = async () => {
-    await doc.loadInfo();
-    const sheet = doc.sheetsById[+internalSearchListingsSheetId];
-    const rows = await sheet.getRows<SheetListing>();
+    const limit = 2000;
+    // Load total row count (assuming the sheet supports row count information)
+    const totalRows = sheet.rowCount;
 
-    return rows.map(row => mapperListingObject(row));
+    // Calculate the number of chunks based on limit
+    const numberOfChunks = Math.ceil(totalRows / limit);
+
+    // Create an array of promises to fetch rows in chunks
+    const promises = Array.from({length: numberOfChunks}, (_, i) => {
+        const offset = i * limit;
+        return sheet.getRows<SheetListing>({limit, offset});
+    });
+
+    // Use Promise.all to fetch all chunks concurrently
+    const rowsChunks = await Promise.all(promises);
+
+    // Flatten the results and map them to the desired format
+    return rowsChunks.flat().map((row) => mapperListingObject(row));
 };
-
-// export const getAllZoneListings = async () => {
-//     const doc = new GoogleSpreadsheet(zoneSpreadsheetId, serviceAccountAuth);
-//     await doc.loadInfo();
-//     const sheet = doc.sheetsByTitle["Zone list"];
-//     const rows = await sheet.getRows();
-//
-//     const results = rows.map(row => ({
-//         zoneNameEnglish: row.get("Zone name English"),
-//     }));
-//     return [...new Set(results.reduce((acc, cur) => {
-//         const zoneNameList = cur.zoneNameEnglish.split(", ");
-//         return [...acc, ...zoneNameList];
-//     }, []))].sort((a, b) => a.localeCompare(b));
-// };
 
 export const getAllLvId = async () => {
     const doc = new GoogleSpreadsheet(internalSearchSpreadsheetId, serviceAccountAuth);
