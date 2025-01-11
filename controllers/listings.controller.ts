@@ -7,23 +7,18 @@ import {sheet} from "../configs/spreadsheet";
 
 export const getAllListings = async () => {
     const limit = 2000;
-    // Load total row count (assuming the sheet supports row count information)
     const totalRows = sheet.rowCount;
-
-    // Calculate the number of chunks based on limit
     const numberOfChunks = Math.ceil(totalRows / limit);
 
-    // Create an array of promises to fetch rows in chunks
-    const promises = Array.from({length: numberOfChunks}, (_, i) => {
-        const offset = i * limit;
-        return sheet.getRows<SheetListing>({limit, offset});
-    });
+    const fetchBatch = async (offset: number) => {
+        const rows = await sheet.getRows<SheetListing>({limit, offset});
+        return rows.map(row => mapperListingObject(row));
+    };
 
-    // Use Promise.all to fetch all chunks concurrently
+    const promises = Array.from({length: numberOfChunks}, (_, i) => fetchBatch(i * limit));
     const rowsChunks = await Promise.all(promises);
 
-    // Flatten the results and map them to the desired format
-    return rowsChunks.flat().map((row) => mapperListingObject(row));
+    return rowsChunks.flat();
 };
 
 export const getAllLvId = async () => {
