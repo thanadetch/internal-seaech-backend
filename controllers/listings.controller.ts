@@ -60,3 +60,14 @@ export const updateListing = async (postType: string, sku: string, listingObj: L
     await row.save();
     return mapperListingObject(row);
 };
+
+export const deleteListing = async (postType: string, sku: string) => {
+    const rows = await sheet.getRows<SheetListing>();
+
+    const row = rows.find(row => row.get("SKU") === sku && row.get("PostType") === postType);
+    // Delete the row from the sheet
+    if (row) {
+        await row.delete();
+    }
+    return {status: true};
+};

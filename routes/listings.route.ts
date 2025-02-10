@@ -1,5 +1,5 @@
 import express from "express";
-import {getAllListings, updateListing, getAllLvId} from "../controllers/listings.controller";
+import {getAllListings, updateListing, getAllLvId, deleteListing} from "../controllers/listings.controller";
 import {getImagesFromSku} from "../controllers/listings.controller";
 
 export const listingsRouter = express.Router();/* GET users listing. */
@@ -18,16 +18,17 @@ listingsRouter.get("/lvId/all", async function (req, res, next) {
     });
 });
 
-// router.get("/zone/all", async function (req, res, next) {
-//     const response = await getAllZoneListings();
-//     res.send({
-//         data: response
-//     });
-// });
-
 listingsRouter.put("/:postType/:sku", async function (req, res, next) {
     const {postType, sku} = req.params;
     const response = await updateListing(postType, sku, req.body);
+    res.send({
+        data: response
+    });
+});
+
+listingsRouter.delete("/:postType/:sku", async function (req, res, next) {
+    const { postType, sku } = req.params;
+    const response = await deleteListing(postType, sku);
     res.send({
         data: response
     });
