@@ -21,6 +21,22 @@ export const getAllListings = async () => {
     return rowsChunks.flat();
 };
 
+export const getAllRows = async () => {
+    const limit = 2000;
+    const totalRows = sheet.rowCount;
+    const numberOfChunks = Math.ceil(totalRows / limit);
+
+    const fetchBatch = async (offset: number) => {
+        const rows = await sheet.getRows<SheetListing>({limit, offset});
+        return rows.map(row => row);
+    };
+
+    const promises = Array.from({length: numberOfChunks}, (_, i) => fetchBatch(i * limit));
+    const rowsChunks = await Promise.all(promises);
+
+    return rowsChunks.flat();
+};
+
 export const getAllLvId = async () => {
     const rows = await sheet.getRows();
 
@@ -41,7 +57,7 @@ export const getImagesFromSku = async (sku: string, limit?: number) => {
 };
 
 export const updateListing = async (postType: string, sku: string, listingObj: Listing) => {
-    const rows = await sheet.getRows<SheetListing>();
+    const rows = await getAllRows();
 
     const row = rows.find(row => row.get("SKU") === sku && row.get("PostType") === postType);
     if (!row) throw new Error("Row not found");
@@ -62,7 +78,7 @@ export const updateListing = async (postType: string, sku: string, listingObj: L
 };
 
 export const deleteListing = async (postType: string, sku: string) => {
-    const rows = await sheet.getRows<SheetListing>();
+    const rows = await getAllRows();
 
     const row = rows.find(row => row.get("SKU") === sku && row.get("PostType") === postType);
     // Delete the row from the sheet
