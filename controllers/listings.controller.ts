@@ -59,7 +59,8 @@ export const getImagesFromSku = async (sku: string, limit?: number) => {
 export const updateListing = async (postType: string, sku: string, listingObj: Listing) => {
     const rows = await getAllRows();
 
-    const row = rows.find(row => row.get("SKU") === sku && row.get("PostType") === postType);
+    const rowMap = new Map(rows.map(row => [`${row.get("SKU")}_${row.get("PostType")}`, row]));
+    const row = rowMap.get(`${sku}_${postType}`);
     if (!row) throw new Error("Row not found");
     const tel = listingObj.tel || row.get("Tel.");
     const whatsapp = listingObj.whatsapp || row.get("Whatsapp");
@@ -79,8 +80,8 @@ export const updateListing = async (postType: string, sku: string, listingObj: L
 
 export const deleteListing = async (postType: string, sku: string) => {
     const rows = await getAllRows();
-
-    const row = rows.find(row => row.get("SKU") === sku && row.get("PostType") === postType);
+    const rowMap = new Map(rows.map(row => [`${row.get("SKU")}_${row.get("PostType")}`, row]));
+    const row = rowMap.get(`${sku}_${postType}`);
     // Delete the row from the sheet
     if (row) {
         await row.delete();
