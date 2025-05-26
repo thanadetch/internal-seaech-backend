@@ -1,6 +1,5 @@
 // Initialization utilities for performance optimizations
 import { CacheManager } from './cacheManager';
-import { PerformanceMonitor } from './performance';
 
 export class ApplicationInitializer {
     private static cleanupInterval: NodeJS.Timeout | null = null;
@@ -67,9 +66,7 @@ export class ApplicationInitializer {
             // Import here to avoid circular dependencies
             const { warmUpCache } = await import('../controllers/listings.controller');
             
-            await PerformanceMonitor.measure('cache-warmup', async () => {
-                await warmUpCache();
-            });
+            await warmUpCache();
             
             console.log('[Initialization] Cache warm-up completed');
         } catch (error) {

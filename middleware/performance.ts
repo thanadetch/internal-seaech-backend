@@ -1,17 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
-import { PerformanceMonitor } from '../utils/performance';
 
 // Performance monitoring middleware
 export const performanceMiddleware = (req: Request, res: Response, next: NextFunction) => {
     const startTime = Date.now();
-    const label = `${req.method} ${req.path}`;
-    
-    PerformanceMonitor.start(label);
     
     // Override res.json to capture when response is sent
     const originalJson = res.json;
     res.json = function(body: any) {
-        const duration = PerformanceMonitor.end(label);
+        const duration = Date.now() - startTime;
         
         // Add performance headers
         res.set('X-Response-Time', `${duration}ms`);

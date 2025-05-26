@@ -7,7 +7,6 @@ import {sheet} from "../configs/spreadsheet";
 import {GoogleSpreadsheetRow} from "google-spreadsheet";
 import {CacheManager} from "../utils/cacheManager";
 import {BatchOperationsManager, BatchOperation} from "../utils/batchOperations";
-import {PerformanceMonitor} from "../utils/performance";
 
 // Cache keys
 const CACHE_KEYS = {
@@ -32,32 +31,30 @@ const getCachedRows = async (): Promise<{
         return { rows: cachedRows, rowMap: cachedRowMap };
     }
 
-    return await PerformanceMonitor.measure('fetchAllRows', async () => {
-        const limit = 2000;
-        const totalRows = sheet.rowCount;
-        const numberOfChunks = Math.ceil(totalRows / limit);
+    const limit = 2000;
+    const totalRows = sheet.rowCount;
+    const numberOfChunks = Math.ceil(totalRows / limit);
 
-        // Use Promise.all for parallel fetching
-        const promises = Array.from({length: numberOfChunks}, (_, i) => 
-            sheet.getRows<SheetListing>({limit, offset: i * limit})
-        );
-        
-        const rowsChunks = await Promise.all(promises);
-        const rows = rowsChunks.flat();
-        
-        // Create optimized map for O(1) lookups
-        const rowMap = new Map<string, GoogleSpreadsheetRow<SheetListing>>();
-        rows.forEach(row => {
-            const key = `${row.get("SKU")}_${row.get("PostType")}`;
-            rowMap.set(key, row);
-        });
-
-        // Update cache
-        cacheManager.set(CACHE_KEYS.ALL_ROWS, rows, CACHE_TTL);
-        cacheManager.set(CACHE_KEYS.ROW_MAP, rowMap, CACHE_TTL);
-
-        return { rows, rowMap };
+    // Use Promise.all for parallel fetching
+    const promises = Array.from({length: numberOfChunks}, (_, i) => 
+        sheet.getRows<SheetListing>({limit, offset: i * limit})
+    );
+    
+    const rowsChunks = await Promise.all(promises);
+    const rows = rowsChunks.flat();
+    
+    // Create optimized map for O(1) lookups
+    const rowMap = new Map<string, GoogleSpreadsheetRow<SheetListing>>();
+    rows.forEach(row => {
+        const key = `${row.get("SKU")}_${row.get("PostType")}`;
+        rowMap.set(key, row);
     });
+
+    // Update cache
+    cacheManager.set(CACHE_KEYS.ALL_ROWS, rows, CACHE_TTL);
+    cacheManager.set(CACHE_KEYS.ROW_MAP, rowMap, CACHE_TTL);
+
+    return { rows, rowMap };
 };
 
 // Optimized function to find a specific row without fetching all data
@@ -104,80 +101,74 @@ export const getAllLvId = async () => {
 
 // Cache for folder lookups to avoid repeated API calls
 export const getImagesFromSku = async (sku: string, limit?: number) => {
-    return await PerformanceMonitor.measure(`getImagesFromSku_${sku}`, async () => {
-        // Check folder cache first
-        const cacheKey = `${CACHE_KEYS.FOLDER_PREFIX}${sku}`;
-        const cachedFolderId = cacheManager.get<string | null>(cacheKey);
-        
-        let folderId: string | null = null;
-        
-        if (cachedFolderId !== null && cachedFolderId !== undefined) {
-            folderId = cachedFolderId;
-        } else {
-            const response = await drive.files.list({
-                q: `'${imagesRootSpreadsheetId}' in parents and mimeType='application/vnd.google-apps.folder' and name='${sku}'`,
-                pageSize: 1, // We only need the first match
-                fields: 'files(id)' // Only fetch the id field to reduce data transfer
-            });
-            
-            folderId = response.data.files && response.data.files.length > 0 ? response.data.files[0].id || null : null;
-            
-            // Cache the result
-            cacheManager.set(cacheKey, folderId, FOLDER_CACHE_TTL);
-        }
-        
-        if (!folderId) throw new Error("FolderId not found");
-        
-        return await drive.files.list({
-            q: `'${folderId}' in parents`,
-            pageSize: limit,
-            orderBy: "name",
-            fields: 'files(id,name,mimeType,size)' // Only fetch necessary fields
+    // Check folder cache first
+    const cacheKey = `${CACHE_KEYS.FOLDER_PREFIX}${sku}`;
+    const cachedFolderId = cacheManager.get<string | null>(cacheKey);
+    
+    let folderId: string | null = null;
+    
+    if (cachedFolderId !== null && cachedFolderId !== undefined) {
+        folderId = cachedFolderId;
+    } else {
+        const response = await drive.files.list({
+            q: `'${imagesRootSpreadsheetId}' in parents and mimeType='application/vnd.google-apps.folder' and name='${sku}'`,
+            pageSize: 1, // We only need the first match
+            fields: 'files(id)' // Only fetch the id field to reduce data transfer
         });
+        
+        folderId = response.data.files && response.data.files.length > 0 ? response.data.files[0].id || null : null;
+        
+        // Cache the result
+        cacheManager.set(cacheKey, folderId, FOLDER_CACHE_TTL);
+    }
+    
+    if (!folderId) throw new Error("FolderId not found");
+    
+    return await drive.files.list({
+        q: `'${folderId}' in parents`,
+        pageSize: limit,
+        orderBy: "name",
+        fields: 'files(id,name,mimeType,size)' // Only fetch necessary fields
     });
 };
 
 export const updateListing = async (postType: string, sku: string, listingObj: Listing): Promise<Listing> => {
-    return await PerformanceMonitor.measure(`updateListing_${sku}_${postType}`, async () => {
-        // Use optimized row finding instead of getting all rows
-        const row = await findRowBySku(sku, postType);
-        if (!row) throw new Error("Row not found");
-        
-        const tel = listingObj.tel || row.get("Tel.");
-        const whatsapp = listingObj.whatsapp || row.get("Whatsapp");
-        const areaLV = row.get("Area LV");
+    // Use optimized row finding instead of getting all rows
+    const row = await findRowBySku(sku, postType);
+    if (!row) throw new Error("Row not found");
+    
+    const tel = listingObj.tel || row.get("Tel.");
+    const whatsapp = listingObj.whatsapp || row.get("Whatsapp");
+    const areaLV = row.get("Area LV");
 
-        const payload = _.omitBy(mapperSheetObject({
-            ...listingObj,
-            areaLV,
-            updateAvailability: new Date().toISOString(),
-            tel: tel ? ("'" + tel) : tel,
-            whatsapp: whatsapp ? ("'" + whatsapp) : whatsapp
-        }), _.isNil) as SheetListing;
-        
-        row.assign(payload);
-        await row.save();
-        
-        // Invalidate cache since data has changed
-        invalidateRowsCache();
-        
-        return mapperListingObject(row);
-    });
+    const payload = _.omitBy(mapperSheetObject({
+        ...listingObj,
+        areaLV,
+        updateAvailability: new Date().toISOString(),
+        tel: tel ? ("'" + tel) : tel,
+        whatsapp: whatsapp ? ("'" + whatsapp) : whatsapp
+    }), _.isNil) as SheetListing;
+    
+    row.assign(payload);
+    await row.save();
+    
+    // Invalidate cache since data has changed
+    invalidateRowsCache();
+    
+    return mapperListingObject(row);
 };
 
 export const deleteListing = async (postType: string, sku: string): Promise<{status: boolean}> => {
-    return await PerformanceMonitor.measure(`deleteListing_${sku}_${postType}`, async () => {
-        // Use optimized row finding instead of getting all rows
-        const row = await findRowBySku(sku, postType);
-        
-        if (row) {
-            await row.delete();
-            // Invalidate cache since data has changed
-            invalidateRowsCache();
-        }
-        
-        return {status: true};
-    });
+    // Use optimized row finding instead of getting all rows
+    const row = await findRowBySku(sku, postType);
+    
+    if (row) {
+        await row.delete();
+        // Invalidate cache since data has changed
+        invalidateRowsCache();
+    }
+    
+    return {status: true};
 };
 
 // Helper function to invalidate rows cache
@@ -225,34 +216,32 @@ export const searchListings = async (criteria: {
     areaLP?: string;
     bedroom?: string;
 }): Promise<Listing[]> => {
-    return await PerformanceMonitor.measure('searchListings', async () => {
-        const { rows } = await getCachedRows();
+    const { rows } = await getCachedRows();
+    
+    // Use efficient filtering without creating intermediate arrays
+    const results: Listing[] = [];
+    
+    for (const row of rows) {
+        let matches = true;
         
-        // Use efficient filtering without creating intermediate arrays
-        const results: Listing[] = [];
-        
-        for (const row of rows) {
-            let matches = true;
-            
-            if (criteria.propertyType && row.get("Property Type") !== criteria.propertyType) {
-                matches = false;
-            } else if (criteria.postType && row.get("PostType") !== criteria.postType) {
-                matches = false;
-            } else if (criteria.minPrice && parseFloat(row.get("Price") || "0") < criteria.minPrice) {
-                matches = false;
-            } else if (criteria.maxPrice && parseFloat(row.get("Price") || "0") > criteria.maxPrice) {
-                matches = false;
-            } else if (criteria.areaLP && !row.get("Area LP")?.includes(criteria.areaLP)) {
-                matches = false;
-            } else if (criteria.bedroom && row.get("Bedroom") !== criteria.bedroom) {
-                matches = false;
-            }
-            
-            if (matches) {
-                results.push(mapperListingObject(row));
-            }
+        if (criteria.propertyType && row.get("Property Type") !== criteria.propertyType) {
+            matches = false;
+        } else if (criteria.postType && row.get("PostType") !== criteria.postType) {
+            matches = false;
+        } else if (criteria.minPrice && parseFloat(row.get("Price") || "0") < criteria.minPrice) {
+            matches = false;
+        } else if (criteria.maxPrice && parseFloat(row.get("Price") || "0") > criteria.maxPrice) {
+            matches = false;
+        } else if (criteria.areaLP && !row.get("Area LP")?.includes(criteria.areaLP)) {
+            matches = false;
+        } else if (criteria.bedroom && row.get("Bedroom") !== criteria.bedroom) {
+            matches = false;
         }
         
-        return results;
-    });
+        if (matches) {
+            results.push(mapperListingObject(row));
+        }
+    }
+    
+    return results;
 };
