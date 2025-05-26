@@ -6,7 +6,6 @@ import {Listing, SheetListing} from "../types";
 import {sheet} from "../configs/spreadsheet";
 import {GoogleSpreadsheetRow} from "google-spreadsheet";
 import {CacheManager} from "../utils/cacheManager";
-import {BatchOperationsManager, BatchOperation} from "../utils/batchOperations";
 
 // Cache keys
 const CACHE_KEYS = {
@@ -175,36 +174,6 @@ export const deleteListing = async (postType: string, sku: string): Promise<{sta
 const invalidateRowsCache = (): void => {
     cacheManager.delete(CACHE_KEYS.ALL_ROWS);
     cacheManager.delete(CACHE_KEYS.ROW_MAP);
-};
-
-// Helper function to clear cache manually if needed
-export const clearCache = (): void => {
-    cacheManager.clear();
-};
-
-// Helper function to warm up cache
-export const warmUpCache = async (): Promise<void> => {
-    await getCachedRows();
-};
-
-// Batch operations
-export const batchUpdateListings = async (operations: BatchOperation[]): Promise<any> => {
-    const validation = BatchOperationsManager.validateOperations(operations);
-    if (!validation.valid) {
-        throw new Error(`Invalid operations: ${validation.errors.join(', ')}`);
-    }
-
-    const results = await BatchOperationsManager.batchUpdate(operations);
-    
-    // Invalidate cache after batch operations
-    invalidateRowsCache();
-    
-    return results;
-};
-
-// Get cache statistics
-export const getCacheStats = () => {
-    return cacheManager.getStats();
 };
 
 // Search listings by criteria (optimized)

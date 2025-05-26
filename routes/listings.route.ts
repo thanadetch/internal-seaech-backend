@@ -5,19 +5,13 @@ import {
     getAllLvId, 
     deleteListing, 
     getImagesFromSku,
-    searchListings,
-    batchUpdateListings,
-    clearCache,
-    warmUpCache,
-    getCacheStats
+    searchListings
 } from "../controllers/listings.controller";
 import {checkAuth} from "../middleware/auth";
-import {performanceMiddleware, rateLimitMiddleware, cacheControlMiddleware} from "../middleware/performance";
 
 export const listingsRouter = express.Router();
 
-// Apply performance monitoring to all routes
-listingsRouter.use(performanceMiddleware);/* GET listings with caching */
+/* GET listings with caching */
 listingsRouter.get("/all", async function (req, res, next) {
     try {
         const response = await getAllListings();
@@ -54,23 +48,20 @@ listingsRouter.get("/search", async function (req, res, next) {
     }
 });
 
-listingsRouter.get("/lvId/all", 
-    cacheControlMiddleware(600), // 10 minutes cache
-    async function (req, res, next) {
-        try {
-            const response = await getAllLvId();
-            res.send({
-                data: response
-            });
-        } catch (error) {
-            res.status(500).send({
-                error: error instanceof Error ? error.message : 'Unknown error'
-            });
-        }
+listingsRouter.get("/lvId/all", async function (req, res, next) {
+    try {
+        const response = await getAllLvId();
+        res.send({
+            data: response
+        });
+    } catch (error) {
+        res.status(500).send({
+            error: error instanceof Error ? error.message : 'Unknown error'
+        });
     }
-);
+});
 
-listingsRouter.put("/:postType/:sku", checkAuth, async function (req, res, next): Promise<void> {
+listingsRouter.patch("/:postType/:sku", checkAuth, async function (req, res, next): Promise<void> {
     try {
         const {postType, sku} = req.params;
         const response = await updateListing(postType, sku, req.body);
@@ -109,66 +100,6 @@ listingsRouter.get("/images/:sku", async function (req, res, next) {
     } catch (e) {
         res.send({
             files: []
-        });
-    }
-});
-
-// Batch operations endpoint with rate limiting
-listingsRouter.post("/batch", 
-    checkAuth, 
-    rateLimitMiddleware(5, 60000), // Max 5 batch requests per minute
-    async function (req, res, next): Promise<void> {
-        try {
-            const operations = req.body.operations;
-            if (!operations || !Array.isArray(operations)) {
-                res.status(400).send({ error: 'Operations array is required' });
-                return;
-            }
-            
-            const results = await batchUpdateListings(operations);
-            res.send({
-                data: results
-            });
-        } catch (error) {
-            res.status(500).send({
-                error: error instanceof Error ? error.message : 'Unknown error'
-            });
-        }
-    }
-);
-
-// Cache management endpoints
-listingsRouter.post("/cache/clear", checkAuth, async function (req, res, next): Promise<void> {
-    try {
-        clearCache();
-        res.send({ message: 'Cache cleared successfully' });
-    } catch (error) {
-        res.status(500).send({
-            error: error instanceof Error ? error.message : 'Unknown error'
-        });
-    }
-});
-
-listingsRouter.post("/cache/warmup", checkAuth, async function (req, res, next): Promise<void> {
-    try {
-        await warmUpCache();
-        res.send({ message: 'Cache warmed up successfully' });
-    } catch (error) {
-        res.status(500).send({
-            error: error instanceof Error ? error.message : 'Unknown error'
-        });
-    }
-});
-
-listingsRouter.get("/cache/stats", checkAuth, async function (req, res, next): Promise<void> {
-    try {
-        const stats = getCacheStats();
-        res.send({
-            data: stats
-        });
-    } catch (error) {
-        res.status(500).send({
-            error: error instanceof Error ? error.message : 'Unknown error'
         });
     }
 });
