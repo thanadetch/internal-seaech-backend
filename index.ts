@@ -6,7 +6,8 @@ import cors from "cors";
 import {checkAuth} from "./middleware/auth";
 import {port} from "./configs/environment";
 import {initializeSpreadsheet} from "./configs/spreadsheet";
-import {listingsRouter} from "./routes";
+import {listingsRouter, healthRouter} from "./routes";
+import {ApplicationInitializer} from "./utils/initialization";
 
 const app = express();
 
@@ -28,10 +29,17 @@ app.use((req, res, next) => {
 
 // API routes
 app.use("/api/listings", listingsRouter);
+app.use("/api/health", healthRouter);
 
-initializeSpreadsheet().then(() => {
+initializeSpreadsheet().then(async () => {
+    // Initialize performance optimizations
+    await ApplicationInitializer.initialize();
+    
     // Start the server
     app.listen(port, async () => {
         console.log(`App listening on port ${port}`);
+        
+        // Warm up caches after server starts
+        await ApplicationInitializer.warmUpCaches();
     });
 });

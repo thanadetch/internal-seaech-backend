@@ -4,7 +4,10 @@
   "private": true,
   "scripts": {
     "start": "ts-node index.ts",
-    "start:watch": "nodemon --watch '*.ts' --exec 'ts-node' index.ts"
+    "start:watch": "nodemon --watch '*.ts' --exec 'ts-node' index.ts",
+    "test:performance": "node performance-test.js",
+    "build": "tsc",
+    "dev": "npm run start:watch"
   },
   "dependencies": {
     "axios": "^1.7.9",

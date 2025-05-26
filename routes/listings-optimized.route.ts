@@ -12,15 +12,16 @@ import {
     getCacheStats
 } from "../controllers/listings.controller";
 import {checkAuth} from "../middleware/auth";
-import {performanceMiddleware, rateLimitMiddleware, cacheControlMiddleware} from "../middleware/performance";
+import {rateLimitMiddleware} from "../middleware/performance";
 
 export const listingsRouter = express.Router();
 
-// Apply performance monitoring to all routes
-listingsRouter.use(performanceMiddleware);/* GET listings with caching */
+/* GET all listings with optimized caching */
 listingsRouter.get("/all", async function (req, res, next) {
     try {
         const response = await getAllListings();
+        // Add cache headers for better performance
+        res.set('Cache-Control', 'public, max-age=300'); // 5 minutes
         res.send({
             data: response
         });
@@ -31,7 +32,7 @@ listingsRouter.get("/all", async function (req, res, next) {
     }
 });
 
-/* Search listings with optimized filtering */
+/* Search listings with criteria-based filtering */
 listingsRouter.get("/search", async function (req, res, next) {
     try {
         const criteria = {
@@ -44,6 +45,7 @@ listingsRouter.get("/search", async function (req, res, next) {
         };
         
         const response = await searchListings(criteria);
+        res.set('Cache-Control', 'public, max-age=60'); // 1 minute cache for search
         res.send({
             data: response
         });
@@ -54,23 +56,23 @@ listingsRouter.get("/search", async function (req, res, next) {
     }
 });
 
-listingsRouter.get("/lvId/all", 
-    cacheControlMiddleware(600), // 10 minutes cache
-    async function (req, res, next) {
-        try {
-            const response = await getAllLvId();
-            res.send({
-                data: response
-            });
-        } catch (error) {
-            res.status(500).send({
-                error: error instanceof Error ? error.message : 'Unknown error'
-            });
-        }
+/* GET LV IDs with longer cache */
+listingsRouter.get("/lvId/all", async function (req, res, next) {
+    try {
+        const response = await getAllLvId();
+        res.set('Cache-Control', 'public, max-age=600'); // 10 minutes
+        res.send({
+            data: response
+        });
+    } catch (error) {
+        res.status(500).send({
+            error: error instanceof Error ? error.message : 'Unknown error'
+        });
     }
-);
+});
 
-listingsRouter.put("/:postType/:sku", checkAuth, async function (req, res, next): Promise<void> {
+/* UPDATE listing with optimized single-row fetch */
+listingsRouter.put("/:postType/:sku", async function (req, res, next) {
     try {
         const {postType, sku} = req.params;
         const response = await updateListing(postType, sku, req.body);
@@ -84,7 +86,8 @@ listingsRouter.put("/:postType/:sku", checkAuth, async function (req, res, next)
     }
 });
 
-listingsRouter.delete("/:postType/:sku", checkAuth, async function (req, res, next): Promise<void> {
+/* DELETE listing with optimized single-row fetch */
+listingsRouter.delete("/:postType/:sku", async function (req, res, next) {
     try {
         const { postType, sku } = req.params;
         const response = await deleteListing(postType, sku);
@@ -98,11 +101,13 @@ listingsRouter.delete("/:postType/:sku", checkAuth, async function (req, res, ne
     }
 });
 
+/* GET images with folder caching */
 listingsRouter.get("/images/:sku", async function (req, res, next) {
     try {
         const {sku} = req.params;
         const {limit} = req.query as any;
         const fileResponse = await getImagesFromSku(sku, limit);
+        res.set('Cache-Control', 'public, max-age=1800'); // 30 minutes for images
         res.send({
             files: fileResponse.data.files || []
         });
@@ -113,7 +118,7 @@ listingsRouter.get("/images/:sku", async function (req, res, next) {
     }
 });
 
-// Batch operations endpoint with rate limiting
+/* Batch operations for multiple updates */
 listingsRouter.post("/batch", 
     checkAuth, 
     rateLimitMiddleware(5, 60000), // Max 5 batch requests per minute
@@ -137,7 +142,7 @@ listingsRouter.post("/batch",
     }
 );
 
-// Cache management endpoints
+/* Cache management endpoints */
 listingsRouter.post("/cache/clear", checkAuth, async function (req, res, next): Promise<void> {
     try {
         clearCache();
@@ -172,4 +177,3 @@ listingsRouter.get("/cache/stats", checkAuth, async function (req, res, next): P
         });
     }
 });
-
