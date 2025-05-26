@@ -1,11 +1,10 @@
 import express from "express";
 import {
-    getAllListings, 
-    updateListing, 
-    getAllLvId, 
-    deleteListing, 
+    getAllListings,
+    updateListing,
+    getAllLvId,
+    deleteListing,
     getImagesFromSku,
-    searchListings
 } from "../controllers/listings.controller";
 import {checkAuth} from "../middleware/auth";
 
@@ -20,30 +19,7 @@ listingsRouter.get("/all", async function (req, res, next) {
         });
     } catch (error) {
         res.status(500).send({
-            error: error instanceof Error ? error.message : 'Unknown error'
-        });
-    }
-});
-
-/* Search listings with optimized filtering */
-listingsRouter.get("/search", async function (req, res, next) {
-    try {
-        const criteria = {
-            propertyType: req.query.propertyType as string,
-            postType: req.query.postType as string,
-            minPrice: req.query.minPrice ? Number(req.query.minPrice) : undefined,
-            maxPrice: req.query.maxPrice ? Number(req.query.maxPrice) : undefined,
-            areaLP: req.query.areaLP as string,
-            bedroom: req.query.bedroom as string,
-        };
-        
-        const response = await searchListings(criteria);
-        res.send({
-            data: response
-        });
-    } catch (error) {
-        res.status(500).send({
-            error: error instanceof Error ? error.message : 'Unknown error'
+            error: error instanceof Error ? error.message : "Unknown error"
         });
     }
 });
@@ -56,7 +32,7 @@ listingsRouter.get("/lvId/all", async function (req, res, next) {
         });
     } catch (error) {
         res.status(500).send({
-            error: error instanceof Error ? error.message : 'Unknown error'
+            error: error instanceof Error ? error.message : "Unknown error"
         });
     }
 });
@@ -70,21 +46,21 @@ listingsRouter.patch("/:postType/:sku", checkAuth, async function (req, res, nex
         });
     } catch (error) {
         res.status(500).send({
-            error: error instanceof Error ? error.message : 'Unknown error'
+            error: error instanceof Error ? error.message : "Unknown error"
         });
     }
 });
 
 listingsRouter.delete("/:postType/:sku", checkAuth, async function (req, res, next): Promise<void> {
     try {
-        const { postType, sku } = req.params;
+        const {postType, sku} = req.params;
         const response = await deleteListing(postType, sku);
         res.send({
             data: response
         });
     } catch (error) {
         res.status(500).send({
-            error: error instanceof Error ? error.message : 'Unknown error'
+            error: error instanceof Error ? error.message : "Unknown error"
         });
     }
 });
