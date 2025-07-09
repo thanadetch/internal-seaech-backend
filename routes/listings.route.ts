@@ -5,10 +5,34 @@ import {
     getAllLvId,
     deleteListing,
     getImagesFromSku,
+    addListing,
 } from "../controllers/listings.controller";
 import {checkAuth} from "../middleware/auth";
 
 export const listingsRouter = express.Router();
+
+/* POST new listing */
+listingsRouter.post("/", checkAuth, async function (req, res, next): Promise<void> {
+    try {
+        // Basic validation for required fields
+        if (!req.body.sku || !req.body.postType) {
+            res.status(400).send({
+                error: "SKU and PostType are required fields"
+            });
+            return;
+        }
+
+        const response = await addListing(req.body);
+        res.status(201).send({
+            data: response,
+            message: "Listing created successfully"
+        });
+    } catch (error) {
+        res.status(500).send({
+            error: error instanceof Error ? error.message : "Unknown error"
+        });
+    }
+});
 
 /* GET listings with caching */
 listingsRouter.get("/all", async function (req, res, next) {
@@ -79,4 +103,3 @@ listingsRouter.get("/images/:sku", async function (req, res, next) {
         });
     }
 });
-

@@ -170,6 +170,29 @@ export const deleteListing = async (postType: string, sku: string): Promise<{ st
     return {status: true};
 };
 
+// New function to add a listing
+export const addListing = async (listingData: Listing): Promise<Listing> => {
+    try {
+        // Map the listing data to sheet format and set updateAvailability to current date
+        const sheetData = mapperSheetObject({
+            ...listingData,
+            updateAvailability: new Date().toISOString()
+        });
+
+        // Add the new row to the sheet
+        const newRow = await sheet.addRow(sheetData);
+
+        // Clear cache since we've added new data
+        invalidateRowsCache();
+
+        // Return the mapped listing object
+        return mapperListingObject(newRow);
+    } catch (error) {
+        console.error("Error adding listing:", error);
+        throw new Error(`Failed to add listing: ${error instanceof Error ? error.message : "Unknown error"}`);
+    }
+};
+
 // Helper function to invalidate rows cache
 const invalidateRowsCache = (): void => {
     cacheManager.delete(CACHE_KEYS.ALL_ROWS);

@@ -1,24 +1,15 @@
 export const port = process.env.PORT;
+
+// Google Auth related
 export const googleClientEmail = process.env.GOOGLE_CLIENT_EMAIL;
 export const googlePrivateKey = process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+
+// Spreadsheet related
 export const internalSearchSpreadsheetId = process.env.INTERNAL_SEARCH_SPREADSHEET_ID || '';
 export const internalSearchListingsSheetId = process.env.INTERNAL_SEARCH_LISTINGS_SHEET_ID || '';
-export const internalSearchLVIdSheetId = process.env.INTERNAL_SEARCH_LV_ID_SHEET_ID || '';
-export const zoneSpreadsheetId = process.env.ZONE_SPREADSHEET_ID || '';
 export const imagesRootSpreadsheetId = process.env.IMAGES_ROOT_SPREADSHEET_ID;
-export const psUsername = process.env.PS_USERNAME || '';
-export const psPassword = process.env.PS_PASSWORD || '';
-export const psWebURL = process.env.PS_WEB_URL;
-export const isLocal = process.env.IS_LOCAL === 'true';
-export const googleChromePath = process.env.GOOGLE_CHROME_PATH;
-export const firebaseType = process.env.FIREBASE_TYPE;
+
+// Firebase related
 export const firebaseProjectId = process.env.FIREBASE_PROJECT_ID;
-export const firebasePrivateKeyId = process.env.FIREBASE_PRIVATE_KEY_ID;
 export const firebasePrivateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
 export const firebaseClientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-export const firebaseClientId = process.env.FIREBASE_CLIENT_ID;
-export const firebaseAuthUri = process.env.FIREBASE_AUTH_URI;
-export const firebaseTokenUri = process.env.FIREBASE_TOKEN_URI;
-export const firebaseAuthProviderX509CertUrl = process.env.FIREBASE_AUTH_PROVIDER_X509_CERT_URL;
-export const firebaseClientX509CertUrl = process.env.FIREBASE_CLIENT_X509_CERT_URL;
-export const firebaseUniverseDomain = process.env.FIREBASE_UNIVERSE_DOMAIN;
