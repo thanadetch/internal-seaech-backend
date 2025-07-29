@@ -5,7 +5,6 @@ export type SheetListing = {
     "Property Type": string
     "PostType": string
     "PostFrom": string
-    "Title TH": string
     "Title EN": string
     "Price"?: number
     "AreaSize"?: number

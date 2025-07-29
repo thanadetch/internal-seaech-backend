@@ -5,7 +5,6 @@ export type Listing = {
     propertyType: string;
     postType: string;
     postFrom: string;
-    titleTH: string;
     titleEN: string;
     price?: number;
     areaSize?: number;
